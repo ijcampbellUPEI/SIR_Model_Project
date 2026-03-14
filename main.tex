@@ -61,7 +61,7 @@ The main question we want to explore in this project is: what determines whether
 \section{Review of Existing Models}
 % ---------------------------------------------------------------
 
-The simplest idea is to model disease spread using exponential growth, but this breaks down quickly because it ignores the depletion of susceptible individuals and cannot reproduce the familiar rise-and-fall shape of a real epidemic curve. A more realistic approach is to divide the population into compartments based on disease status and track how people move between them over time. The SIR model is the simplest version of this idea, but works well for certain acute infections\cite{keeling2011}. Some common extensions include:
+The simplest idea is to model disease spread using exponential growth, but this breaks down quickly because it ignores the depletion of susceptible individuals and cannot reproduce the familiar rise-and-fall shape of a real epidemic curve. A more realistic approach is to divide the population into compartments based on disease status and track how people move between them over time. The SIR model is the simplest version of this idea, but works well for certain acute infections\cite{keeling2011, hethcote2000}. Some common extensions include:
 
 \begin{itemize}
     \item \textbf{SI model:} People only move from susceptible to infectious and never recover. This applies to certain chronic infections.
