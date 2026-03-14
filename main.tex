@@ -71,7 +71,7 @@ The simplest idea is to model disease spread using exponential growth, but this 
     \item \textbf{Models with births and deaths:} For diseases that persist over many years (endemic diseases), it makes sense to include population turnover.
 \end{itemize}
 
-There are also more complex approaches like network models, which account for the fact that people don't mix randomly but interact more with certain groups, and agent-based models, which simulate every individual separately. These can be more realistic, but they require a lot more data and are harder to analyze mathematically. For this project, we are focusing on the classical SIR model. It is simple enough to study analytically, which means we can actually prove things about its behavior rather than just running simulations.
+There are also more complex approaches like network models, which account for the fact that people don't mix randomly but interact more with certain groups, and agent-based models, which simulate every individual separately. These can be more realistic, but they require a lot more data and are harder to analyze mathematically  \cite{brauer2012}. For this project, we are focusing on the classical SIR model. It is simple enough to study analytically, which means we can actually prove things about its behavior rather than just running simulations.
 
 % ---------------------------------------------------------------
 \section{Model Formulation}
@@ -148,7 +148,7 @@ The most important quantity in the SIR model is the basic reproduction number $R
     \item If $R_0 > 1$, each infectious person infects more than one other person, and the disease spreads.
 \end{itemize}
 
-We will derive this threshold condition by looking at the sign of $dI/dt$ at the start of the epidemic. This is one of the most striking results of the model: a single number determines whether an epidemic happens or not.
+We will derive this threshold condition by looking at the sign of $dI/dt$ at the start of the epidemic. This is one of the most striking results of the model: a single number determines whether an epidemic happens or not \cite{hethcote2000}.
 
 \subsection{Phase Plane Analysis}
 
@@ -160,7 +160,7 @@ This will let us find curves in the phase plane that show, for example, how high
 
 \subsection{Final Size of the Epidemic}
 
-One question we can answer analytically is: once the epidemic is over, what fraction of the population was infected? If we let $s_\infty$ denote the proportion of susceptibles remaining at the end, it turns out this satisfies:
+One question we can answer analytically is: once the epidemic is over, what fraction of the population was infected? If we let $s_\infty$ denote the proportion of susceptibles remaining at the end \cite{hethcote2000}, it turns out this satisfies:
 \begin{equation}
     1 - s_\infty = 1 - \exp\!\bigl(-R_0(1 - s_\infty)\bigr)
 \end{equation}
@@ -195,7 +195,7 @@ For a disease like measles with $R_0 \approx 15$ \cite{anderson1982}, this means
 The model also has some notable weaknesses that we plan to discuss in the full report:
 
 \begin{itemize}
-    \item The homogeneous mixing assumption is unrealistic. People interact far more with some individuals (family, coworkers) than others. Network-based models try to address this.
+    \item The homogeneous mixing assumption is unrealistic. People interact far more with some individuals (family, coworkers) than others. Network-based models try to address this \cite{brauer2012}.
     \item There are no births or deaths in the model, which limits its usefulness for studying diseases over long time periods.
     \item There is no vaccination compartment. A natural extension is the SIRV model, which adds vaccinated individuals and changes the effective reproduction number.
     \item Many diseases have a latent period where someone is infected but not yet contagious. Adding an Exposed (E) class gives the SEIR model, which is more realistic for COVID-19 or measles.
