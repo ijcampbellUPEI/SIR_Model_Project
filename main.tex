@@ -1,0 +1,209 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=0.85in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{parskip}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage[backend=biber, style=numeric]{biblatex}
+\addbibresource{references.bib}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=black,
+    citecolor=black
+}
+
+% Section formatting
+\titleformat{\section}{\large\bfseries}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\normalsize\bfseries}{}{0em}{}
+
+\titlespacing{\section}{0pt}{10pt}{4pt}
+\titlespacing{\subsection}{0pt}{7pt}{2pt}
+
+% Tighter lists
+\setlist[itemize]{noitemsep, topsep=2pt, parsep=0pt, partopsep=0pt, leftmargin=1.5em}
+
+% Compact paragraph spacing
+\setlength{\parskip}{4pt}
+\setlength{\parindent}{0pt}
+
+\begin{document}
+
+% ---------------------------------------------------------------
+% Title Block
+% ---------------------------------------------------------------
+\begin{center}
+    {\Large\bfseries Mathematical Modelling of Disease Spread Using the SIR Model}\\[4pt]
+    {\normalsize\itshape First Draft}\\[3pt]
+    {\normalsize Aditi Nigam, Isaac Campbell, Kj Strachan, Rupinder Singh}\\[2pt]
+    {\normalsize\itshape AMS 3910 -- Winter 2026}
+\end{center}
+
+\vspace{4pt}
+
+% ---------------------------------------------------------------
+\section{Introduction and Background}
+% ---------------------------------------------------------------
+
+Infectious diseases have always posed serious challenges to public health. From historical outbreaks like the 1918 Spanish flu to more recent ones like the COVID-19 pandemic, it is clear that understanding how a disease spreads through a population is incredibly important. Mathematical models give us a structured way to think about this, and they can help predict how an outbreak will unfold and what kinds of interventions might help.
+
+The main question we want to explore in this project is: what determines whether a disease will spread widely through a population, or whether it will die out quickly? More specifically, we are interested in how two key factors --- the rate at which the disease spreads and the rate at which infected people recover --- interact to shape the course of an epidemic. This is a question with real policy implications, since even a modest reduction in transmission (for example, through masking or social distancing) can make the difference between a contained outbreak and a large-scale epidemic. To tackle this, we are using the Susceptible--Infectious--Recovered (SIR) model, which was first developed by Kermack and McKendrick in 1927. Our goal is to derive the model carefully, analyze its mathematical behavior, and interpret what it tells us about real diseases.
+
+% ---------------------------------------------------------------
+\section{Review of Existing Models}
+% ---------------------------------------------------------------
+
+The simplest idea is to model disease spread using exponential growth, but this breaks down quickly because it ignores the depletion of susceptible individuals and cannot reproduce the familiar rise-and-fall shape of a real epidemic curve. A more realistic approach is to divide the population into compartments based on disease status and track how people move between them over time. The SIR model is the simplest version of this idea, but works well for certain acute infections\cite{keeling2011}. Some common extensions include:
+
+\begin{itemize}
+    \item \textbf{SI model:} People only move from susceptible to infectious and never recover. This applies to certain chronic infections.
+    \item \textbf{SIS model:} After recovering, people become susceptible again straight away --- there is no lasting immunity. This is relevant for diseases like the common cold.
+    \item \textbf{SEIR model:} Adds an Exposed class for people who are infected but not yet infectious. This is more realistic for diseases like COVID-19 or measles, which have a latent period.
+    \item \textbf{SIRS model:} Immunity eventually wanes, so recovered individuals can become susceptible again over time. This is relevant for seasonal influenza.
+    \item \textbf{Models with births and deaths:} For diseases that persist over many years (endemic diseases), it makes sense to include population turnover.
+\end{itemize}
+
+There are also more complex approaches like network models, which account for the fact that people don't mix randomly but interact more with certain groups, and agent-based models, which simulate every individual separately. These can be more realistic, but they require a lot more data and are harder to analyze mathematically. For this project, we are focusing on the classical SIR model. It is simple enough to study analytically, which means we can actually prove things about its behavior rather than just running simulations.
+
+% ---------------------------------------------------------------
+\section{Model Formulation}
+% ---------------------------------------------------------------
+
+\subsection{Assumptions}
+
+These simplifying assumptions allow us to build a tractable model for infection spread. They also define the limits of the model and clarify how the model can be refined..
+
+\begin{itemize}
+    \item The total population size $N$ stays constant throughout the epidemic. We ignore births, deaths, and migration. This is a reasonable simplification for a short outbreak.
+    \item Every person in the population is equally likely to come into contact with every other person. In reality, people tend to interact more with family and coworkers than with strangers, but this ``homogeneous mixing'' assumption keeps the model manageable.
+    \item The rate at which new infections occur depends on both how many susceptible people there are and how many infectious people there are. Specifically, we assume it is proportional to the product $S \times I$. This is called the mass-action assumption.
+    \item Each infectious person recovers at a constant rate $\gamma$ (gamma), regardless of how long they have been infected. On average, someone stays infectious for $1/\gamma$ days.
+    \item Once someone recovers, they are permanently immune and cannot be re-infected. This is a reasonable approximation for diseases like measles, and works for COVID-19 over short time periods.
+    \item The disease does not cause death. This simplifies the model but is an obvious limitation for diseases with significant mortality.
+\end{itemize}
+
+\subsection{Variables and Parameters}
+
+The model tracks three quantities over time: $S(t)$, the number of susceptible individuals; $I(t)$, the number currently infectious; and $R(t)$, the number recovered and immune. Table~\ref{tab:params} summarizes the key parameters.
+
+\begin{table}[h!]
+\centering
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{>{\bfseries}p{1.3cm} p{2.8cm} p{6.5cm} p{2.8cm}}
+\toprule
+Symbol & Name & Description & Typical Values \\
+\midrule
+$\beta$ & Transmission rate & How quickly an infectious person spreads the disease to susceptible people. Higher $\beta$ means faster spread. & 0.1--1.0 per day \\
+$\gamma$ & Recovery rate & The rate at which infectious people recover. The average time someone stays infectious is $1/\gamma$. & 0.05--0.5 per day \\
+$N$ & Population size & Total population: $N = S(t) + I(t) + R(t)$, which stays constant. & Context-dependent \\
+$R_0= \beta*N/\gamma$ & Basic reproduction number & The average number of new infections caused by one infectious person in a fully susceptible population. & Measles $\approx 15$\cite{anderson1982};\newline COVID-19 $\approx 2$--5\cite{crawford} \\
+\bottomrule
+\end{tabular}
+\caption{Model parameters and typical values.}
+\label{tab:params}
+\end{table}
+
+\subsection{Deriving the Equations}
+\enlargethispage{\baselineskip} %prevent equation from spilling to next page.
+
+To write down the model, we think about how each compartment changes over time. The key idea is to track the flows of people between $S$, $I$, and $R$.
+
+People leave the susceptible class only by getting infected. Under our mass-action assumption, the rate of new infections is $\beta SI$. So:
+\begin{equation}
+    \frac{dS}{dt} = -\beta S I
+\end{equation}
+The infectious class gains people from $S$ (at rate $\beta SI$) and loses people to $R$ as they recover (at rate $\gamma I$):
+\begin{equation}
+    \frac{dI}{dt} = \beta S I - \gamma I
+\end{equation}
+The recovered class simply accumulates everyone who leaves the infectious class:
+\begin{equation}
+    \frac{dR}{dt} = \gamma I
+\end{equation}
+Since the total population is fixed, we always have $S(t) + I(t) + R(t) = N$. This means $R$ is completely determined once we know $S$ and $I$, so the system is really just two equations. We start with almost everyone susceptible:
+\[
+S(0) \approx N - 1, \quad I(0) = 1, \quad R(0) = 0,
+\]
+representing a single infectious person introduced into the population.
+
+% ---------------------------------------------------------------
+\section{Planned Model Analysis}
+% ---------------------------------------------------------------
+
+\subsection{The Basic Reproduction Number and Epidemic Threshold}
+
+The most important quantity in the SIR model is the basic reproduction number $R_0 = \beta N / \gamma$. Intuitively, $R_0$ tells us how many new infections one infectious person causes when introduced into a fully susceptible population. We expect to show that:
+
+\begin{itemize}
+    \item If $R_0 < 1$, each infectious person infects less than one other person on average, so the outbreak fizzles out.
+    \item If $R_0 > 1$, each infectious person infects more than one other person, and the disease spreads.
+\end{itemize}
+
+We will derive this threshold condition by looking at the sign of $dI/dt$ at the start of the epidemic. This is one of the most striking results of the model: a single number determines whether an epidemic happens or not.
+
+\subsection{Phase Plane Analysis}
+
+Because the system only really has two variables ($S$ and $I$), we can draw trajectories in the $SI$ plane and see how the epidemic evolves. By dividing $dI/dt$ by $dS/dt$, we get:
+\begin{equation}
+    \frac{dI}{dS} = -1 + \frac{\gamma}{\beta S}
+\end{equation}
+This will let us find curves in the phase plane that show, for example, how high the infectious peak gets and what fraction of the population is left uninfected at the end.
+
+\subsection{Final Size of the Epidemic}
+
+One question we can answer analytically is: once the epidemic is over, what fraction of the population was infected? If we let $s_\infty$ denote the proportion of susceptibles remaining at the end, it turns out this satisfies:
+\begin{equation}
+    1 - s_\infty = 1 - \exp\!\bigl(-R_0(1 - s_\infty)\bigr)
+\end{equation}
+This equation has no neat closed-form solution, but we can solve it numerically and see how the total epidemic size depends on $R_0$. Intuitively, we expect that a higher $R_0$ means a larger fraction of the population gets infected.
+
+\subsection{Effect of Changing Parameters}
+
+We also want to understand how sensitive the epidemic outcomes are to changes in $\beta$ and $\gamma$. For instance, what happens to the peak infection level if we reduce $\beta$ by 20\% (e.g., through social distancing)? How does the epidemic duration change if recovery is faster? These kinds of questions are directly relevant to evaluating public health interventions.
+
+\subsection{Herd Immunity}
+
+Finally, we will look at the herd immunity threshold: the proportion of the population that needs to be immune in order to prevent an epidemic from taking off. This is given by:
+\begin{equation}
+    p > 1 - \frac{1}{R_0}
+\end{equation}
+For a disease like measles with $R_0 \approx 15$ \cite{anderson1982}, this means roughly 93\% of the population needs to be immune --- which is why measles vaccination campaigns need such high coverage.
+
+% ---------------------------------------------------------------
+\section{Preliminary Model Evaluation}
+% ---------------------------------------------------------------
+
+\subsection{What the Model Does Well}
+
+\begin{itemize}
+    \item It is mathematically clean. The SIR system can be analyzed in depth using tools we have seen in this course, without relying purely on numerical simulation.
+    \item It identifies a clear threshold ($R_0$) that tells us when an epidemic will or won't occur. This is an incredibly useful result for public health decision-making.
+    \item Despite its simplicity, the model produces epidemic curves that look qualitatively similar to what we observe in real outbreaks. It captures the essential rise-and-fall pattern.
+\end{itemize}
+
+\subsection{Limitations and Possible Extensions}
+
+The model also has some notable weaknesses that we plan to discuss in the full report:
+
+\begin{itemize}
+    \item The homogeneous mixing assumption is unrealistic. People interact far more with some individuals (family, coworkers) than others. Network-based models try to address this.
+    \item There are no births or deaths in the model, which limits its usefulness for studying diseases over long time periods.
+    \item There is no vaccination compartment. A natural extension is the SIRV model, which adds vaccinated individuals and changes the effective reproduction number.
+    \item Many diseases have a latent period where someone is infected but not yet contagious. Adding an Exposed (E) class gives the SEIR model, which is more realistic for COVID-19 or measles.
+    \item The transmission rate $\beta$ is treated as constant, but in reality it can change with seasons, behavior, or government interventions. We will briefly discuss what happens when $\beta$ varies with time.
+\end{itemize}
+
+
+\printbibliography
+
+
+\end{document}
